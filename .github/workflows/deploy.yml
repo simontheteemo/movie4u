@@ -28,7 +28,7 @@ jobs:
     - name: Build Lambda Function
       run: |
         # Build TypeScript Lambda
-        cd src/video-processor
+        cd src/video-processing
         npm install
         npm run build
         
