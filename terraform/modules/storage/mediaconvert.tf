@@ -45,12 +45,6 @@ resource "aws_iam_role_policy" "mediaconvert" {
   })
 }
 
-# MediaConvert job template for audio extraction
-resource "aws_media_convert_queue" "main" {
-  name = "${var.resource_prefix}-queue"
-  tags = var.tags
-}
-
 # Get MediaConvert endpoint
 data "aws_mediaconvert_endpoint" "current" {
   endpoint_type = "AWS_MANAGED"
