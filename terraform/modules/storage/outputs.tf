@@ -13,3 +13,7 @@ output "analysis_table_arn" {
 output "analysis_table_name" {
   value = aws_dynamodb_table.analysis.name
 }
+
+output "mediaconvert_endpoint" {
+  value = data.aws_mediaconvert_endpoint.current.endpoint
+}

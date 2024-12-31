@@ -3,11 +3,14 @@ import { RekognitionClient, StartLabelDetectionCommand, GetLabelDetectionCommand
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { MediaConvertClient, CreateJobCommand } from '@aws-sdk/client-mediaconvert';
 
 const rekognition = new RekognitionClient({});
 const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const bedrock = new BedrockRuntimeClient({ region: process.env.AWS_REGION });
-
+const mediaconvert = new MediaConvertClient({
+    endpoint: process.env.MEDIACONVERT_ENDPOINT // We'll need to get this endpoint
+});
 
 interface VideoAnalysis {
     videoId: string;
@@ -17,8 +20,61 @@ interface VideoAnalysis {
         confidence: number;
         timestamp: number;
     }>;
+    audioPath: string;
     narrative: string;
     status: string;
+}
+
+async function extractAudio(bucket: string, key: string): Promise<string> {
+    const jobParams = {
+        Queue: process.env.MEDIACONVERT_QUEUE,
+        Role: process.env.MEDIACONVERT_ROLE,
+        Settings: {
+            Inputs: [{
+                FileInput: `s3://${bucket}/${key}`,
+                AudioSelectors: {
+                    "Audio Selector 1": {
+                        DefaultSelection: "DEFAULT" as const
+                    }
+                }
+            }],
+            OutputGroups: [{
+                Name: "Audio",
+                OutputGroupSettings: {
+                    Type: "FILE_GROUP_SETTINGS" as const,
+                    FileGroupSettings: {
+                        Destination: `s3://${process.env.MEDIA_OUTPUT_BUCKET}/audio/`
+                    }
+                },
+                Outputs: [{
+                    AudioDescriptions: [{
+                        CodecSettings: {
+                            Codec: "AAC" as const,
+                            AacSettings: {
+                                Bitrate: 96000,
+                                CodingMode: "CODING_MODE_2_0" as const,
+                                SampleRate: 48000
+                            }
+                        }
+                    }],
+                    ContainerSettings: {
+                        Container: "MP4" as const,
+                        Mp4Settings: {}
+                    },
+                    NameModifier: `-${Date.now()}`
+                }]
+            }]
+        }
+    };
+
+    try {
+        const response = await mediaconvert.send(new CreateJobCommand(jobParams));
+        console.log('MediaConvert job created:', response.Job?.Id);
+        return `audio/${key.split('/').pop()?.replace(/\.[^/.]+$/, '')}-${Date.now()}.mp4`;
+    } catch (error) {
+        console.error('Error creating MediaConvert job:', error);
+        throw error;
+    }
 }
 
 async function generateNarrative(labels: any[]): Promise<string> {
@@ -92,25 +148,21 @@ export const handler = async (event: S3Event): Promise<void> => {
 
             console.log(`Processing video from bucket: ${bucket}, key: ${key}`);
 
-            // Start video analysis
-            const startLabelDetection = await rekognition.send(
-                new StartLabelDetectionCommand({
-                    Video: {
-                        S3Object: {
-                            Bucket: bucket,
-                            Name: key,
-                        },
-                    },
-                    MinConfidence: 70,
-                })
-            );
+            // Start both processes in parallel
+            const [audioPath, labelDetectionJob] = await Promise.all([
+                extractAudio(bucket, key),
+                rekognition.send(new StartLabelDetectionCommand({
+                    Video: { S3Object: { Bucket: bucket, Name: key } },
+                    MinConfidence: 70
+                }))
+            ]);
 
-            if (!startLabelDetection.JobId) {
+            if (!labelDetectionJob.JobId) {
                 throw new Error('Failed to start label detection job');
             }
 
             // Get analysis results
-            const labels = await waitForLabelDetection(startLabelDetection.JobId);
+            const labels = await waitForLabelDetection(labelDetectionJob.JobId);
 
             // Generate narrative using Bedrock
             const narrative = await generateNarrative(labels);
@@ -123,6 +175,7 @@ export const handler = async (event: S3Event): Promise<void> => {
                     confidence: label.Label?.Confidence || 0,
                     timestamp: label.Timestamp || 0,
                 })),
+                audioPath,
                 status: 'COMPLETED',
                 narrative: narrative
             };

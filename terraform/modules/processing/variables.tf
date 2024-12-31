@@ -27,3 +27,18 @@ variable "analysis_table_name" {
   description = "Name of the DynamoDB analysis table"
   type        = string
 }
+
+variable "mediaconvert_endpoint" {
+  description = "MediaConvert endpoint URL"
+  type        = string
+}
+
+variable "mediaconvert_queue_arn" {
+  description = "MediaConvert queue ARN"
+  type        = string
+}
+
+variable "media_output_bucket_arn" {
+  description = "ARN of the S3 bucket for MediaConvert output"
+  type        = string
+}

@@ -8,11 +8,12 @@
         "clean": "rm -rf dist"
     },
     "dependencies": {
+        "@aws-sdk/client-bedrock-runtime": "^3.470.0",
         "@aws-sdk/client-dynamodb": "^3.470.0",
+        "@aws-sdk/client-mediaconvert": "^3.716.0",
         "@aws-sdk/client-rekognition": "^3.470.0",
         "@aws-sdk/lib-dynamodb": "^3.470.0",
-        "@aws-sdk/util-dynamodb": "^3.470.0",
-        "@aws-sdk/client-bedrock-runtime": "^3.470.0"
+        "@aws-sdk/util-dynamodb": "^3.470.0"
     },
     "devDependencies": {
         "@types/aws-lambda": "^8.10.130",

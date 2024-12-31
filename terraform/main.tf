@@ -14,12 +14,14 @@ module "storage" {
 module "processing" {
   source = "./modules/processing"
 
-  resource_prefix     = local.resource_prefix
-  tags                = local.tags
-  upload_bucket_arn   = module.storage.upload_bucket_arn
-  upload_bucket_name  = module.storage.upload_bucket_name
-  analysis_table_arn  = module.storage.analysis_table_arn
-  analysis_table_name = module.storage.analysis_table_name
+  resource_prefix        = local.resource_prefix
+  tags                   = local.tags
+  upload_bucket_arn      = module.storage.upload_bucket_arn
+  upload_bucket_name     = module.storage.upload_bucket_name
+  analysis_table_arn     = module.storage.analysis_table_arn
+  analysis_table_name    = module.storage.analysis_table_name
+  mediaconvert_endpoint  = module.storage.mediaconvert_endpoint
+  mediaconvert_queue_arn = module.storage.mediaconvert_queue_arn
 }
 
 # Finally, set up the S3 notification

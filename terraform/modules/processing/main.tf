@@ -63,6 +63,22 @@ resource "aws_iam_role_policy" "processor" {
           "bedrock:InvokeModel"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "mediaconvert:CreateJob",
+          "mediaconvert:GetJob",
+          "mediaconvert:ListJobs"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = "${var.media_output_bucket_arn}/*"
       }
     ]
   })
@@ -88,8 +104,10 @@ resource "aws_lambda_function" "processor" {
 
   environment {
     variables = {
-      UPLOAD_BUCKET  = var.upload_bucket_name
-      ANALYSIS_TABLE = var.analysis_table_name
+      UPLOAD_BUCKET         = var.upload_bucket_name
+      ANALYSIS_TABLE        = var.analysis_table_name
+      MEDIACONVERT_ENDPOINT = var.mediaconvert_endpoint
+      MEDIACONVERT_QUEUE    = var.mediaconvert_queue_arn
     }
   }
 
