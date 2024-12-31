@@ -34,38 +34,42 @@ interface VideoAnalysis {
       return acc;
     }, {});
   
-    // Create a prompt for Bedrock
-    const prompt = {
-      prompt: `You are an assistant helping blind people understand videos. Create a natural, descriptive narrative from these scene labels:
+    // Create scene description
+    const sceneDescription = Object.entries(scenes)
+      .map(([time, labels]) => 
+        `At ${time} seconds: ${(labels as string[]).join(', ')}`
+      ).join('\n');
   
-  ${Object.entries(scenes).map(([time, labels]) => 
-    `At ${time} seconds: ${(labels as string[]).join(', ')}`
-  ).join('\n')}
-  
-  Provide a flowing, natural description that helps visualize the scene progression. Focus on key actions and changes.`,
-      max_tokens: 500,
+    const body = {
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: 200,
+      top_k: 250,
+      stop_sequences: [],
       temperature: 0.7,
+      top_p: 0.999,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `You are an assistant helping blind people understand videos. Create a natural, descriptive narrative from these scene labels:\n\n${sceneDescription}\n\nProvide a flowing, natural description that helps visualize the scene progression. Focus on key actions and changes.`
+            }
+          ]
+        }
+      ]
     };
   
     try {
       const response = await bedrock.send(new InvokeModelCommand({
-        modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
-        body: JSON.stringify({
-            anthropic_version: "bedrock-2023-05-31",
-            max_tokens: 500,
-            messages: [
-              {
-                role: "user",
-                content: prompt
-              }
-            ]
-          }),
+        modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+        body: JSON.stringify(body),
         contentType: 'application/json',
         accept: 'application/json',
       }));
   
       const responseData = JSON.parse(new TextDecoder().decode(response.body));
-      return responseData.completion || 'No narrative generated';
+      return responseData.content?.[0]?.text || 'No narrative generated';
     } catch (error) {
       console.error('Error generating narrative:', error);
       return 'Error generating narrative description';
