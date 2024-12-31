@@ -22,6 +22,7 @@ module "processing" {
   analysis_table_name    = module.storage.analysis_table_name
   mediaconvert_endpoint  = module.storage.mediaconvert_endpoint
   mediaconvert_queue_arn = module.storage.mediaconvert_queue_arn
+  media_output_bucket_arn = module.storage.media_output_bucket_arn
 }
 
 # Finally, set up the S3 notification
