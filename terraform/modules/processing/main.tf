@@ -74,7 +74,7 @@ resource "aws_lambda_function" "processor" {
   role          = aws_iam_role.processor.arn
   handler       = "index.handler"
   runtime       = "nodejs18.x"
-  timeout       = 30
+  timeout       = 900
   memory_size   = 256
 
   source_code_hash = filebase64sha256("${path.module}/processor.zip")
