@@ -56,6 +56,13 @@ resource "aws_iam_role_policy" "processor" {
         Resource = [
           var.analysis_table_arn
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel"
+        ]
+        Resource = "*"
       }
     ]
   })
