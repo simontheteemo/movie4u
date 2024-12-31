@@ -50,7 +50,16 @@ interface VideoAnalysis {
     try {
       const response = await bedrock.send(new InvokeModelCommand({
         modelId: 'anthropic.claude-v2',
-        body: JSON.stringify(prompt),
+        body: JSON.stringify({
+            anthropic_version: "bedrock-2023-05-31",
+            max_tokens: 500,
+            messages: [
+              {
+                role: "user",
+                content: prompt
+              }
+            ]
+          }),
         contentType: 'application/json',
         accept: 'application/json',
       }));
