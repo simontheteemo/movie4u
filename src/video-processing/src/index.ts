@@ -5,7 +5,9 @@ import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { MediaConvertClient, CreateJobCommand } from '@aws-sdk/client-mediaconvert';
 import { TranscribeClient, StartTranscriptionJobCommand } from '@aws-sdk/client-transcribe';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
+const s3Client = new S3Client({});
 const rekognition = new RekognitionClient({});
 const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const bedrock = new BedrockRuntimeClient({ region: process.env.AWS_REGION });
@@ -23,42 +25,129 @@ interface VideoAnalysis {
         timestamp: number;
     }>;
     audioPath: string;
-    narrative: string;
+    visualNarrative: string;
+    comprehensiveNarrative: string;
     transcriptionPath?: string;
     status: string;
 }
 
+async function getTranscription(transcriptionPath: string): Promise<string> {
+    try {
+        const response = await s3Client.send(new GetObjectCommand({
+            Bucket: process.env.MEDIA_OUTPUT_BUCKET!,
+            Key: transcriptionPath
+        }));
+
+        const transcriptionData = await response.Body?.transformToString();
+        if (!transcriptionData) {
+            throw new Error('No transcription data found');
+        }
+
+        const parsedData = JSON.parse(transcriptionData);
+        return parsedData.results.transcripts[0].transcript;
+    } catch (error) {
+        console.error('Error reading transcription:', error);
+        throw error;
+    }
+}
+
+async function generateComprehensiveNarrative(labels: any[], transcript: string): Promise<string> {
+    const scenes = labels.reduce((acc: any, label: any) => {
+        const timestamp = Math.floor((label.Timestamp || 0) / 1000);
+        if (!acc[timestamp]) {
+            acc[timestamp] = [];
+        }
+        if (label.Label?.Name) {
+            acc[timestamp].push(label.Label.Name);
+        }
+        return acc;
+    }, {});
+
+    const body = {
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 1000,
+        top_k: 250,
+        stop_sequences: [],
+        temperature: 0.7,
+        top_p: 0.999,
+        messages: [
+            {
+                role: "user",
+                content: [
+                    {
+                        type: "text",
+                        text: `You are an assistant helping blind people understand videos. Create a comprehensive narrative combining visual elements and spoken dialogue.
+
+Visual elements by timestamp:
+${Object.entries(scenes)
+                                .map(([time, labels]) => `At ${time} seconds: ${(labels as string[]).join(', ')}`)
+                                .join('\n')}
+
+Spoken dialogue: "${transcript}"
+
+Create a flowing narrative that:
+1. Describes the visual scenes and actions
+2. Integrates the spoken dialogue naturally
+3. Maintains temporal alignment between visual elements and speech
+4. Provides context that helps visualize the complete scene`
+                    }
+                ]
+            }
+        ]
+    };
+
+    try {
+        const response = await bedrock.send(new InvokeModelCommand({
+            modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+            body: JSON.stringify(body),
+            contentType: 'application/json',
+            accept: 'application/json',
+        }));
+
+        const responseData = JSON.parse(new TextDecoder().decode(response.body));
+        const narrative = responseData.messages?.[0]?.content?.[0]?.text
+            || responseData.content?.[0]?.text
+            || 'No narrative generated';
+
+        console.log('Generated comprehensive narrative:', narrative);
+        return narrative;
+    } catch (error) {
+        console.error('Error generating comprehensive narrative:', error);
+        return 'Error generating comprehensive narrative';
+    }
+}
+
 async function startTranscription(audioPath: string, videoId: string, timestamp: number): Promise<string> {
     const jobName = `transcribe-${videoId}-${timestamp}`;
-    console.log(`start transcribe job ${jobName} in 2 seconds`);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    console.log(`start transcribe job ${jobName} in 2 seconds`);  //over racing with audio extraction
+    await new Promise(resolve => setTimeout(resolve, 2000));  // TOFIX: wait for audio extraction to complete
+
     // Debug logging
     console.log('S3 URI:', `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`);
-    
+
     const params = {
-      TranscriptionJobName: jobName,
-      LanguageCode: 'en-US' as const,
-      MediaFormat: 'mp4' as const,
-      Media: {
-        MediaFileUri: `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`
-      },
-      OutputBucketName: process.env.MEDIA_OUTPUT_BUCKET,
-      OutputKey: `transcripts/${videoId}-${timestamp}.json`
+        TranscriptionJobName: jobName,
+        LanguageCode: 'en-US' as const,
+        MediaFormat: 'mp4' as const,
+        Media: {
+            MediaFileUri: `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`
+        },
+        OutputBucketName: process.env.MEDIA_OUTPUT_BUCKET,
+        OutputKey: `transcripts/${videoId}-${timestamp}.json`
     };
-  
+
     console.log('Transcribe params:', JSON.stringify(params, null, 2));
-  
+
     try {
-      await transcribe.send(new StartTranscriptionJobCommand(params));
-      console.log('Transcription job started:', jobName);
-      return `transcripts/${videoId}-${timestamp}.json`;
+        await transcribe.send(new StartTranscriptionJobCommand(params));
+        console.log('Transcription job started:', jobName);
+        return `transcripts/${videoId}-${timestamp}.json`;
     } catch (error) {
-      console.error('Error starting transcription job:', error);
-      console.error('Full params:', JSON.stringify(params, null, 2));
-      throw error;
+        console.error('Error starting transcription job:', error);
+        console.error('Full params:', JSON.stringify(params, null, 2));
+        throw error;
     }
-  }
+}
 
 async function extractAudio(bucket: string, key: string, timestamp: number): Promise<string> {
     const jobParams = {
@@ -200,11 +289,19 @@ export const handler = async (event: S3Event): Promise<void> => {
             // Start transcription after audio extraction
             const transcriptionPath = await startTranscription(audioPath, videoId, timestamp);
 
+            // Wait for transcription job to complete (you might want to add a wait function here)
+            console.log('Getting transcription from:', transcriptionPath);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            const transcript = await getTranscription(transcriptionPath);
+            
             // Get analysis results
             const labels = await waitForLabelDetection(labelDetectionJob.JobId);
 
             // Generate narrative using Bedrock
-            const narrative = await generateNarrative(labels);
+            const [visualNarrative, comprehensiveNarrative] = await Promise.all([
+                generateNarrative(labels),
+                generateComprehensiveNarrative(labels, transcript)
+            ]);
             // Save results to DynamoDB
             const analysis: VideoAnalysis = {
                 videoId,
@@ -216,7 +313,8 @@ export const handler = async (event: S3Event): Promise<void> => {
                 })),
                 audioPath,
                 status: 'COMPLETED',
-                narrative: narrative,
+                visualNarrative,
+                comprehensiveNarrative,
                 transcriptionPath,
             };
 
