@@ -4,13 +4,15 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { MediaConvertClient, CreateJobCommand } from '@aws-sdk/client-mediaconvert';
+import { TranscribeClient, StartTranscriptionJobCommand } from '@aws-sdk/client-transcribe';
 
 const rekognition = new RekognitionClient({});
 const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const bedrock = new BedrockRuntimeClient({ region: process.env.AWS_REGION });
 const mediaconvert = new MediaConvertClient({
-    endpoint: process.env.MEDIACONVERT_ENDPOINT // We'll need to get this endpoint
+    endpoint: process.env.MEDIACONVERT_ENDPOINT
 });
+const transcribe = new TranscribeClient({ region: process.env.AWS_REGION });
 
 interface VideoAnalysis {
     videoId: string;
@@ -22,8 +24,33 @@ interface VideoAnalysis {
     }>;
     audioPath: string;
     narrative: string;
+    transcriptionPath?: string;
     status: string;
 }
+
+async function startTranscription(audioPath: string, videoId: string): Promise<string> {
+    const jobName = `transcribe-${videoId}-${Date.now()}`;
+    
+    const params = {
+      TranscriptionJobName: jobName,
+      LanguageCode: 'en-US' as const,
+      MediaFormat: 'mp4' as const,
+      Media: {
+        MediaFileUri: `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`
+      },
+      OutputBucketName: process.env.MEDIA_OUTPUT_BUCKET,
+      OutputKey: `transcripts/${videoId}.json`
+    };
+  
+    try {
+      await transcribe.send(new StartTranscriptionJobCommand(params));
+      console.log('Transcription job started:', jobName);
+      return `transcripts/${videoId}.json`;
+    } catch (error) {
+      console.error('Error starting transcription job:', error);
+      throw error;
+    }
+  }
 
 async function extractAudio(bucket: string, key: string): Promise<string> {
     const jobParams = {
@@ -161,6 +188,9 @@ export const handler = async (event: S3Event): Promise<void> => {
                 throw new Error('Failed to start label detection job');
             }
 
+            // Start transcription after audio extraction
+            const transcriptionPath = await startTranscription(audioPath, videoId);
+
             // Get analysis results
             const labels = await waitForLabelDetection(labelDetectionJob.JobId);
 
@@ -177,7 +207,8 @@ export const handler = async (event: S3Event): Promise<void> => {
                 })),
                 audioPath,
                 status: 'COMPLETED',
-                narrative: narrative
+                narrative: narrative,
+                transcriptionPath,
             };
 
             await dynamodb.send(

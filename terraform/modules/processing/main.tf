@@ -79,6 +79,14 @@ resource "aws_iam_role_policy" "processor" {
           "s3:PutObject"
         ]
         Resource = "${var.media_output_bucket_arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "transcribe:StartTranscriptionJob",
+          "transcribe:GetTranscriptionJob"
+        ]
+        Resource = "*"
       }
     ]
   })
@@ -134,8 +142,8 @@ resource "aws_iam_role_policy" "mediaconvert_pass_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = "iam:PassRole"
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
         Resource = var.mediaconvert_role_arn
       }
     ]
