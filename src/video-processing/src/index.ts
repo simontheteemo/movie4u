@@ -28,8 +28,8 @@ interface VideoAnalysis {
     status: string;
 }
 
-async function startTranscription(audioPath: string, videoId: string): Promise<string> {
-    const jobName = `transcribe-${videoId}-${Date.now()}`;
+async function startTranscription(audioPath: string, videoId: string, timestamp: number): Promise<string> {
+    const jobName = `transcribe-${videoId}-${timestamp}`;
     
     // Debug logging
     console.log('Audio Path:', audioPath);
@@ -43,7 +43,7 @@ async function startTranscription(audioPath: string, videoId: string): Promise<s
         MediaFileUri: `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`
       },
       OutputBucketName: process.env.MEDIA_OUTPUT_BUCKET,
-      OutputKey: `transcripts/${videoId}.json`
+      OutputKey: `transcripts/${videoId}-${timestamp}.json`
     };
   
     console.log('Transcribe params:', JSON.stringify(params, null, 2));
@@ -51,7 +51,7 @@ async function startTranscription(audioPath: string, videoId: string): Promise<s
     try {
       await transcribe.send(new StartTranscriptionJobCommand(params));
       console.log('Transcription job started:', jobName);
-      return `transcripts/${videoId}.json`;
+      return `transcripts/${videoId}-${timestamp}.json`;
     } catch (error) {
       console.error('Error starting transcription job:', error);
       console.error('Full params:', JSON.stringify(params, null, 2));
@@ -174,6 +174,7 @@ async function generateNarrative(labels: any[]): Promise<string> {
 export const handler = async (event: S3Event): Promise<void> => {
     try {
         console.log('Processing video analysis event:', JSON.stringify(event, null, 2));
+        const timestamp = Date.now();
 
         for (const record of event.Records) {
             const bucket = record.s3.bucket.name;
@@ -196,7 +197,7 @@ export const handler = async (event: S3Event): Promise<void> => {
             }
 
             // Start transcription after audio extraction
-            const transcriptionPath = await startTranscription(audioPath, videoId);
+            const transcriptionPath = await startTranscription(audioPath, videoId, timestamp);
 
             // Get analysis results
             const labels = await waitForLabelDetection(labelDetectionJob.JobId);
