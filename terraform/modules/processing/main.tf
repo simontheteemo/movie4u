@@ -149,3 +149,26 @@ resource "aws_iam_role_policy" "mediaconvert_pass_role" {
     ]
   })
 }
+
+# Add S3 read permissions for media output bucket
+resource "aws_iam_role_policy" "media_output_access" {
+  name = "${var.resource_prefix}-media-output-access"
+  role = aws_iam_role.processor.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          var.media_output_bucket_arn,
+          "${var.media_output_bucket_arn}/*"
+        ]
+      }
+    ]
+  })
+}
