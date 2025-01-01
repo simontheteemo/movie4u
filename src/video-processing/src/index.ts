@@ -31,6 +31,10 @@ interface VideoAnalysis {
 async function startTranscription(audioPath: string, videoId: string): Promise<string> {
     const jobName = `transcribe-${videoId}-${Date.now()}`;
     
+    // Debug logging
+    console.log('Audio Path:', audioPath);
+    console.log('S3 URI:', `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`);
+    
     const params = {
       TranscriptionJobName: jobName,
       LanguageCode: 'en-US' as const,
@@ -42,12 +46,15 @@ async function startTranscription(audioPath: string, videoId: string): Promise<s
       OutputKey: `transcripts/${videoId}.json`
     };
   
+    console.log('Transcribe params:', JSON.stringify(params, null, 2));
+  
     try {
       await transcribe.send(new StartTranscriptionJobCommand(params));
       console.log('Transcription job started:', jobName);
       return `transcripts/${videoId}.json`;
     } catch (error) {
       console.error('Error starting transcription job:', error);
+      console.error('Full params:', JSON.stringify(params, null, 2));
       throw error;
     }
   }
