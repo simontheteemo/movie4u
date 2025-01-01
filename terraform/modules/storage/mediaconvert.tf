@@ -49,3 +49,29 @@ resource "aws_media_convert_queue" "main" {
   name = "${var.resource_prefix}-queue"
   tags = var.tags
 }
+
+# Add S3 bucket policy for Transcribe access
+resource "aws_s3_bucket_policy" "media_output_policy" {
+  bucket = aws_s3_bucket.media_output.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowTranscribeRead"
+        Effect = "Allow"
+        Principal = {
+          Service = "transcribe.amazonaws.com"
+        }
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.media_output.arn,
+          "${aws_s3_bucket.media_output.arn}/*"
+        ]
+      }
+    ]
+  })
+}
