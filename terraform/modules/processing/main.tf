@@ -124,3 +124,20 @@ resource "aws_lambda_permission" "allow_s3" {
   principal     = "s3.amazonaws.com"
   source_arn    = var.upload_bucket_arn
 }
+
+# Add this policy to the Lambda execution role
+resource "aws_iam_role_policy" "mediaconvert_pass_role" {
+  name = "${var.resource_prefix}-mediaconvert-pass-role"
+  role = aws_iam_role.processor.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "iam:PassRole"
+        Resource = var.mediaconvert_role_arn
+      }
+    ]
+  })
+}
