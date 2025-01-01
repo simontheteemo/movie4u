@@ -108,6 +108,8 @@ resource "aws_lambda_function" "processor" {
       ANALYSIS_TABLE        = var.analysis_table_name
       MEDIACONVERT_ENDPOINT = var.mediaconvert_endpoint
       MEDIACONVERT_QUEUE    = var.mediaconvert_queue_arn
+      MEDIA_OUTPUT_BUCKET   = var.media_output_bucket_name
+      MEDIACONVERT_ROLE     = var.mediaconvert_role_arn
     }
   }
 

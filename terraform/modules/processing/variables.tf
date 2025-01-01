@@ -42,3 +42,13 @@ variable "media_output_bucket_arn" {
   description = "ARN of the S3 bucket for MediaConvert output"
   type        = string
 }
+
+variable "media_output_bucket_name" {
+  description = "Name of the S3 bucket for MediaConvert output"
+  type        = string
+}
+
+variable "mediaconvert_role_arn" {
+  description = "ARN of the IAM role for MediaConvert"
+  type        = string
+}

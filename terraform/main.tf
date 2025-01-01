@@ -23,6 +23,8 @@ module "processing" {
   mediaconvert_endpoint  = module.storage.mediaconvert_endpoint
   mediaconvert_queue_arn = module.storage.mediaconvert_queue_arn
   media_output_bucket_arn = module.storage.media_output_bucket_arn
+  media_output_bucket_name = module.storage.media_output_bucket_name
+  mediaconvert_role_arn    = module.storage.mediaconvert_role_arn
 }
 
 # Finally, set up the S3 notification
