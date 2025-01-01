@@ -1,5 +1,3 @@
-data "aws_mediaconvert_endpoint" "current" {}
-
 # S3 bucket for MediaConvert output
 resource "aws_s3_bucket" "media_output" {
   bucket = "${var.resource_prefix}-media-output"
@@ -47,7 +45,7 @@ resource "aws_iam_role_policy" "mediaconvert" {
   })
 }
 
-resource "aws_mediaconvert_queue" "main" {
+resource "aws_media_convert_queue" "main" {
   name = "${var.resource_prefix}-queue"
   tags = var.tags
 }

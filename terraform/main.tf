@@ -8,6 +8,7 @@ module "storage" {
 
   resource_prefix = local.resource_prefix
   tags            = local.tags
+  mediaconvert_endpoint = var.mediaconvert_endpoint
 }
 
 # Then create processing resources

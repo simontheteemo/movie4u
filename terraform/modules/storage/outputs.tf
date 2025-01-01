@@ -27,5 +27,5 @@ output "mediaconvert_role_arn" {
 }
 
 output "mediaconvert_endpoint" {
-  value = data.aws_mediaconvert_endpoint.current.endpoint
+  value = var.mediaconvert_endpoint
 }
