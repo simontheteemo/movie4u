@@ -29,3 +29,7 @@ output "mediaconvert_role_arn" {
 output "mediaconvert_endpoint" {
   value = var.mediaconvert_endpoint
 }
+
+output "mediaconvert_queue_arn" {
+  value = aws_media_convert_queue.main.arn
+}
