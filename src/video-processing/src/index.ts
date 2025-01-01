@@ -30,9 +30,10 @@ interface VideoAnalysis {
 
 async function startTranscription(audioPath: string, videoId: string, timestamp: number): Promise<string> {
     const jobName = `transcribe-${videoId}-${timestamp}`;
+    console.log(`start transcribe job ${jobName} in 2 seconds`);
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Debug logging
-    console.log('Audio Path:', audioPath);
     console.log('S3 URI:', `s3://${process.env.MEDIA_OUTPUT_BUCKET}/${audioPath}`);
     
     const params = {
