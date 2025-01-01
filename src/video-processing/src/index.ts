@@ -59,7 +59,7 @@ async function startTranscription(audioPath: string, videoId: string, timestamp:
     }
   }
 
-async function extractAudio(bucket: string, key: string): Promise<string> {
+async function extractAudio(bucket: string, key: string, timestamp: number): Promise<string> {
     const jobParams = {
         Queue: process.env.MEDIACONVERT_QUEUE,
         Role: process.env.MEDIACONVERT_ROLE,
@@ -95,7 +95,7 @@ async function extractAudio(bucket: string, key: string): Promise<string> {
                         Container: "MP4" as const,
                         Mp4Settings: {}
                     },
-                    NameModifier: `-${Date.now()}`
+                    NameModifier: `-${timestamp}`
                 }]
             }]
         }
@@ -104,7 +104,7 @@ async function extractAudio(bucket: string, key: string): Promise<string> {
     try {
         const response = await mediaconvert.send(new CreateJobCommand(jobParams));
         console.log('MediaConvert job created:', response.Job?.Id);
-        return `audio/${key.split('/').pop()?.replace(/\.[^/.]+$/, '')}-${Date.now()}.mp4`;
+        return `audio/${key.split('/').pop()?.replace(/\.[^/.]+$/, '')}-${timestamp}.mp4`;
     } catch (error) {
         console.error('Error creating MediaConvert job:', error);
         throw error;
@@ -185,7 +185,7 @@ export const handler = async (event: S3Event): Promise<void> => {
 
             // Start both processes in parallel
             const [audioPath, labelDetectionJob] = await Promise.all([
-                extractAudio(bucket, key),
+                extractAudio(bucket, key, timestamp),
                 rekognition.send(new StartLabelDetectionCommand({
                     Video: { S3Object: { Bucket: bucket, Name: key } },
                     MinConfidence: 70
