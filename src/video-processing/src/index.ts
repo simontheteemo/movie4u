@@ -33,7 +33,7 @@ interface VideoAnalysis {
 
 async function getTranscription(transcriptionPath: string, timestamp: number): Promise<string> {
     try {
-        const transcriptionKey = `transcripts/${transcriptionPath.split('/').pop()?.split('.')[0]}-${timestamp}.json`;
+        const transcriptionKey = `transcripts/${transcriptionPath.split('/').pop()?.split('.')[0]}.json`;
 
         console.log('Getting transcription from:', transcriptionKey);
         await new Promise(resolve => setTimeout(resolve, 5000));
