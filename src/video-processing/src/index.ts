@@ -31,11 +31,12 @@ interface VideoAnalysis {
     status: string;
 }
 
-async function getTranscription(transcriptionPath: string): Promise<string> {
+async function getTranscription(transcriptionPath: string, timestamp: number): Promise<string> {
     try {
+        const transcriptionKey = `transcripts/${transcriptionPath.split('/').pop()?.split('.')[0]}-${timestamp}.json`;
         const response = await s3Client.send(new GetObjectCommand({
             Bucket: process.env.MEDIA_OUTPUT_BUCKET!,
-            Key: transcriptionPath
+            Key: transcriptionKey
         }));
 
         const transcriptionData = await response.Body?.transformToString();
@@ -292,7 +293,7 @@ export const handler = async (event: S3Event): Promise<void> => {
             // Wait for transcription job to complete (you might want to add a wait function here)
             console.log('Getting transcription from:', transcriptionPath);
             await new Promise(resolve => setTimeout(resolve, 2000));
-            const transcript = await getTranscription(transcriptionPath);
+            const transcript = await getTranscription(transcriptionPath, timestamp);
             
             // Get analysis results
             const labels = await waitForLabelDetection(labelDetectionJob.JobId);
