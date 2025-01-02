@@ -34,6 +34,10 @@ interface VideoAnalysis {
 async function getTranscription(transcriptionPath: string, timestamp: number): Promise<string> {
     try {
         const transcriptionKey = `transcripts/${transcriptionPath.split('/').pop()?.split('.')[0]}-${timestamp}.json`;
+
+        console.log('Getting transcription from:', transcriptionKey);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
         const response = await s3Client.send(new GetObjectCommand({
             Bucket: process.env.MEDIA_OUTPUT_BUCKET!,
             Key: transcriptionKey
@@ -265,16 +269,17 @@ async function generateNarrative(labels: any[]): Promise<string> {
 export const handler = async (event: S3Event): Promise<void> => {
     try {
         console.log('Processing video analysis event:', JSON.stringify(event, null, 2));
-        const timestamp = Date.now();
+        
 
         for (const record of event.Records) {
             const bucket = record.s3.bucket.name;
             const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
             const videoId = key.split('/').pop()?.split('.')[0] || 'unknown';
+            const timestamp = Date.now();
+            
+            console.log(`Processing video with timestamp: ${timestamp} from bucket: ${bucket}, key: ${key}`);
 
-            console.log(`Processing video from bucket: ${bucket}, key: ${key}`);
-
-            // Start both processes in parallel
+            // extract audio and start label detection
             const [audioPath, labelDetectionJob] = await Promise.all([
                 extractAudio(bucket, key, timestamp),
                 rekognition.send(new StartLabelDetectionCommand({
@@ -291,8 +296,6 @@ export const handler = async (event: S3Event): Promise<void> => {
             const transcriptionPath = await startTranscription(audioPath, videoId, timestamp);
 
             // Wait for transcription job to complete (you might want to add a wait function here)
-            console.log('Getting transcription from:', transcriptionPath);
-            await new Promise(resolve => setTimeout(resolve, 2000));
             const transcript = await getTranscription(transcriptionPath, timestamp);
             
             // Get analysis results
