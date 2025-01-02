@@ -33,9 +33,10 @@ interface VideoAnalysis {
 
 async function getTranscription(transcriptionPath: string): Promise<string> {
     try {
+        
         console.log('Getting transcription from:', transcriptionPath);
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
+        await new Promise(resolve => setTimeout(resolve, 15000));
+        console.log('waiting 15 seconds for transcription to be ready');
         const response = await s3Client.send(new GetObjectCommand({
             Bucket: process.env.MEDIA_OUTPUT_BUCKET!,
             Key: transcriptionPath
