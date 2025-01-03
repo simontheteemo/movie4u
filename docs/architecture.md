@@ -3,6 +3,7 @@
 [Architecture](./architecture.md) | 
 [Technical Stack](./technical-stack.md) | 
 [Deployment](./deployment.md)
+
 # Movie2U Architecture
 
 ## Component Flow Diagram
