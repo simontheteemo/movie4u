@@ -28,7 +28,7 @@ You can view the complete JSON data:
 </details>
 
 ### 2. Scene Narrative
-> Paste your narrative here
+> can be viewed in json file
 
 ### 3. Audio Description
 <audio controls>
