@@ -1,3 +1,9 @@
+---
+layout: default
+title: Technical Stack
+description: Movie2U Technical Stack
+---
+
 [Home](./README.md) | 
 [Architecture](./architecture.md) | 
 [Technical Stack](./technical-stack.md) | 

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Deployment
+description: Movie2U Deployment Guide
+---
+
 [Home](./README.md) | 
 [Architecture](./architecture.md) | 
 [Technical Stack](./technical-stack.md) | 
