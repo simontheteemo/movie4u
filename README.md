@@ -1,5 +1,6 @@
 # Movie2U
 [https://simontheteemo.github.io/Movie2U/](https://simontheteemo.github.io/Movie2U/)
+
 A serverless application that enhances video accessibility by providing comprehensive visual and audio descriptions.
 
 ## Documentation
