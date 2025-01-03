@@ -1,3 +1,8 @@
+---
+layout: default
+title: Architecture - Movie2U Documentation
+---
+
 [Home](./README.md) | 
 [Architecture](./architecture.md) | 
 [Technical Stack](./technical-stack.md) | 
@@ -6,7 +11,8 @@
 # Movie2U Architecture
 
 ## Component Flow Diagram
-```mermaid
+
+<div class="mermaid">
 flowchart TD
     subgraph Input
         Video[Video Upload] --> S3upload[S3 Upload Bucket]
@@ -43,10 +49,11 @@ flowchart TD
     
     class S3upload,S3media,DynamoDB storage;
     class Lambda,Rekognition,MediaConvert,Transcribe,Bedrock1,Bedrock2,Polly aws;
-```
+</div>
 
 ## Process Sequence
-```mermaid
+
+<div class="mermaid">
 sequenceDiagram
     participant User
     participant S3
@@ -80,7 +87,7 @@ sequenceDiagram
     
     Polly-->>S3: Save Narration Audio
     Lambda->>DynamoDB: Save Complete Analysis
-```
+</div>
 
 ## Infrastructure Components
 
