@@ -1,3 +1,13 @@
+output "jobs_table_arn" {
+  description = "ARN of the jobs DynamoDB table"
+  value       = aws_dynamodb_table.jobs.arn
+}
+
+output "jobs_table_name" {
+  description = "Name of the jobs DynamoDB table"
+  value       = aws_dynamodb_table.jobs.name
+}
+
 output "upload_bucket_arn" {
   value = aws_s3_bucket.upload.arn
 }

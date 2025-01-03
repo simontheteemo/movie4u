@@ -5,14 +5,17 @@ variable "aws_region" {
 }
 
 variable "environment" {
-  description = "Environment name"
+  description = "Environment name (dev/prod)"
   type        = string
-  default     = "dev"
 }
 
 variable "mediaconvert_endpoint" {
-  description = "AWS MediaConvert endpoint - get from AWS Console or CLI"
+  description = "AWS MediaConvert endpoint"
   type        = string
-  # You can get this from: aws mediaconvert describe-endpoints --region your-region
-  default     = "https://hvtjrir1c.mediaconvert.us-west-2.amazonaws.com"
+}
+
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "movie2u"
 }

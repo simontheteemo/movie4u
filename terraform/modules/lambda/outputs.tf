@@ -10,4 +10,4 @@ output "function_names" {
   value = {
     for name, function in aws_lambda_function.functions : name => function.function_name
   }
-}
+} 

@@ -75,3 +75,10 @@ resource "aws_s3_bucket_policy" "media_output_policy" {
     ]
   })
 }
+
+resource "aws_s3_bucket_versioning" "media_output" {
+  bucket = aws_s3_bucket.media_output.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}

@@ -18,18 +18,24 @@ variable "jobs_table_name" {
   type        = string
 }
 
+variable "step_function_arn" {
+  description = "ARN of the Step Functions state machine"
+  type        = string
+  default     = ""  # Will be updated after Step Functions creation
+}
+
 variable "upload_bucket_arn" {
   description = "ARN of the upload S3 bucket"
   type        = string
 }
 
-variable "upload_bucket_name" {
-  description = "Name of the upload S3 bucket"
+variable "media_output_bucket_arn" {
+  description = "ARN of the media output S3 bucket"
   type        = string
 }
 
-variable "media_output_bucket_arn" {
-  description = "ARN of the media output S3 bucket"
+variable "upload_bucket_name" {
+  description = "Name of the upload S3 bucket"
   type        = string
 }
 
@@ -43,12 +49,12 @@ variable "mediaconvert_endpoint" {
   type        = string
 }
 
-variable "mediaconvert_queue_arn" {
-  description = "MediaConvert queue ARN"
+variable "mediaconvert_role_arn" {
+  description = "MediaConvert IAM role ARN"
   type        = string
 }
 
-variable "mediaconvert_role_arn" {
-  description = "MediaConvert IAM role ARN"
+variable "mediaconvert_queue_arn" {
+  description = "MediaConvert queue ARN"
   type        = string
 }
