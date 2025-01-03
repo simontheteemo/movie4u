@@ -1,3 +1,9 @@
+# Navigation bar at the top of each .md file
+[Home](./README.md) | 
+[Architecture](./architecture.md) | 
+[Technical Stack](./technical-stack.md) | 
+[Deployment](./deployment.md)
+
 # Deployment Guide
 
 ## Prerequisites
