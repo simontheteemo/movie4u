@@ -39,8 +39,16 @@ You can view the complete JSON data:
 You can also [download the audio description](./data/finalPolly.mp3) directly.
 
 ## Before/After Comparison
-| Aspect | Before | After |
-|--------|---------|-------|
-| Visual Context | No description | Detailed scene labels and narrative |
-| Audio Description | None | Natural voice narration |
-| Accessibility | Limited | Enhanced for visually impaired users |
+
+| Feature | Before Enhancement | After Movie2U Processing |
+|---------|-------------------|------------------------|
+| Visual Context | ❌ No scene descriptions<br>❌ No object recognition<br>❌ Limited accessibility | ✅ Detailed scene labels<br>✅ Object detection & recognition<br>✅ Temporal scene understanding |
+| Audio Description | ❌ Only original audio track<br>❌ No scene narration<br>❌ Missing visual context | ✅ Natural voice narration<br>✅ Scene-by-scene description<br>✅ Time-synchronized descriptions |
+| Accessibility | ❌ Limited for visually impaired users<br>❌ No alternative content<br>❌ Dependency on visual cues | ✅ Enhanced accessibility<br>✅ Rich audio descriptions<br>✅ Independent content consumption |
+| Technical Features | ❌ Basic video playback<br>❌ No AI enhancement<br>❌ Static content | ✅ AWS AI/ML processing<br>✅ Dynamic content generation<br>✅ Cloud-based scalability |
+
+### Key Improvements
+- **Automated Processing**: Converts standard videos into accessible content
+- **AI-Powered Analysis**: Uses AWS Rekognition for accurate scene understanding
+- **Natural Voice**: Leverages Amazon Polly for high-quality audio narration
+- **Scalable Solution**: Handles videos of various lengths and complexities
