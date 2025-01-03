@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Architecture - Movie2U Documentation
+title: Architecture
+description: Movie2U System Architecture
 ---
 
 [Home](./README.md) | 
