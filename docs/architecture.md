@@ -7,7 +7,8 @@ description: Movie2U System Architecture
 [Home](./README.md) | 
 [Architecture](./architecture.md) | 
 [Technical Stack](./technical-stack.md) | 
-[Deployment](./deployment.md)
+[Deployment](./deployment.md) | 
+[Demo](./demo.md)
 
 # Movie2U Architecture
 
