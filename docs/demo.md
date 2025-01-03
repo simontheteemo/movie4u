@@ -28,13 +28,15 @@ You can view the complete JSON data:
 </details>
 
 ### 2. Scene Narrative
-> "In a modern office environment, several people are working at their desks with computer screens displaying various applications. The lighting is bright and natural, coming from large windows..."
+> Paste your narrative here
 
 ### 3. Audio Description
 <audio controls>
-  <source src="YOUR_S3_POLLY_URL.mp3" type="audio/mpeg">
+  <source src="./data/finalPolly.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
+
+You can also [download the audio description](./data/finalPolly.mp3) directly.
 
 ## Before/After Comparison
 | Aspect | Before | After |
