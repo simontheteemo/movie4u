@@ -87,6 +87,14 @@ resource "aws_iam_role_policy" "processor" {
           "transcribe:GetTranscriptionJob"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "polly:StartSpeechSynthesisTask",
+          "polly:GetSpeechSynthesisTask"
+        ]
+        Resource = "*"
       }
     ]
   })

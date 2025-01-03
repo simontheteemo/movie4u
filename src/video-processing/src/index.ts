@@ -1,11 +1,12 @@
-import { S3Event } from 'aws-lambda';
-import { RekognitionClient, StartLabelDetectionCommand, GetLabelDetectionCommand } from '@aws-sdk/client-rekognition';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import { MediaConvertClient, CreateJobCommand } from '@aws-sdk/client-mediaconvert';
-import { TranscribeClient, StartTranscriptionJobCommand } from '@aws-sdk/client-transcribe';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { CreateJobCommand, MediaConvertClient } from '@aws-sdk/client-mediaconvert';
+import { PollyClient, StartSpeechSynthesisTaskCommand } from "@aws-sdk/client-polly";
+import { GetLabelDetectionCommand, RekognitionClient, StartLabelDetectionCommand } from '@aws-sdk/client-rekognition';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { StartTranscriptionJobCommand, TranscribeClient } from '@aws-sdk/client-transcribe';
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { S3Event } from 'aws-lambda';
 
 const s3Client = new S3Client({});
 const rekognition = new RekognitionClient({});
@@ -15,6 +16,7 @@ const mediaconvert = new MediaConvertClient({
     endpoint: process.env.MEDIACONVERT_ENDPOINT
 });
 const transcribe = new TranscribeClient({ region: process.env.AWS_REGION });
+const polly = new PollyClient({ region: process.env.AWS_REGION });
 
 interface VideoAnalysis {
     videoId: string;
@@ -28,7 +30,38 @@ interface VideoAnalysis {
     visualNarrative: string;
     comprehensiveNarrative: string;
     transcriptionPath?: string;
+    narrationAudioPath?: string;
     status: string;
+}
+
+async function generateAudioNarration(videoId: string, text: string, timestamp: number): Promise<string> {
+    const outputKey = `narration/${videoId}-${timestamp}.mp3`;
+    
+    try {
+        const params = {
+            Engine: "neural" as const,
+            LanguageCode: "en-US" as const,
+            OutputFormat: "mp3" as const,
+            OutputS3BucketName: process.env.MEDIA_OUTPUT_BUCKET,
+            OutputS3KeyPrefix: outputKey,
+            Text: text,
+            VoiceId: "Matthew" as const,
+            TextType: "text" as const
+        };
+
+        console.log('Starting Polly synthesis task');
+        const response = await polly.send(new StartSpeechSynthesisTaskCommand(params));
+        
+        if (!response.SynthesisTask?.OutputUri) {
+            throw new Error('No output URI from Polly task');
+        }
+
+        console.log('Polly task started:', response.SynthesisTask.TaskId);
+        return outputKey;
+    } catch (error) {
+        console.error('Error generating audio narration:', error);
+        throw error;
+    }
 }
 
 async function getTranscription(transcriptionPath: string): Promise<string> {
@@ -305,6 +338,10 @@ export const handler = async (event: S3Event): Promise<void> => {
                 generateNarrative(labels),
                 generateComprehensiveNarrative(labels, transcript)
             ]);
+
+            // Generate audio narration
+            const narrationAudioPath = await generateAudioNarration(videoId, comprehensiveNarrative, timestamp);
+            
             // Save results to DynamoDB
             const analysis: VideoAnalysis = {
                 videoId,
@@ -319,6 +356,7 @@ export const handler = async (event: S3Event): Promise<void> => {
                 visualNarrative,
                 comprehensiveNarrative,
                 transcriptionPath,
+                narrationAudioPath
             };
 
             await dynamodb.send(
