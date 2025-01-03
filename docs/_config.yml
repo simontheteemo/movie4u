@@ -1,3 +1,4 @@
 title: Movie2U Documentation
 description: Video accessibility enhancement using AWS services
 theme: jekyll-theme-cayman
+baseurl: "/Movie2U"
