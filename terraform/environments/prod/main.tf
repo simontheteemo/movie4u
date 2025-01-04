@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "movie2u-terraform-state-prod"
+    bucket = "movie4u-terraform-state-prod"
     key    = "terraform.tfstate"
     region = "us-west-2"
   }

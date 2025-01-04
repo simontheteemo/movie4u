@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Deployment
-description: Movie2U Deployment Guide
+description: movie4u Deployment Guide
 ---
 
 [Home](./README.md) | 

@@ -1,5 +1,5 @@
 locals {
-  project_name = "movie2u"
+  project_name = "movie4u"
   environment  = var.environment # Keep this as variable for flexibility
 
   # Common tags

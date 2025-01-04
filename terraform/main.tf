@@ -46,7 +46,7 @@ resource "aws_s3_bucket_notification" "upload_notification" {
 
 terraform {
   backend "s3" {
-    bucket = "movie2u"
+    bucket = "movie4u"
     key    = "terraform.tfstate"
     region = "us-west-2"
   }

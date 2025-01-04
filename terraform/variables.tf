@@ -17,5 +17,5 @@ variable "mediaconvert_endpoint" {
 variable "project_name" {
   description = "Project name"
   type        = string
-  default     = "movie2u"
+  default     = "movie4u"
 }

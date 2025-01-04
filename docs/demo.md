@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Demo
-description: Movie2U Input/Output Examples
+description: movie4u Input/Output Examples
 ---
 
 [Home](./README.md) | 
@@ -40,7 +40,7 @@ You can also [download the audio description](./data/finalPolly.mp3) directly.
 
 ## Before/After Comparison
 
-| Feature | Before Enhancement | After Movie2U Processing |
+| Feature | Before Enhancement | After movie4u Processing |
 |---------|-------------------|------------------------|
 | Visual Context | ❌ No scene descriptions<br>❌ No object recognition<br>❌ Limited accessibility | ✅ Detailed scene labels<br>✅ Object detection & recognition<br>✅ Temporal scene understanding |
 | Audio Description | ❌ Only original audio track<br>❌ No scene narration<br>❌ Missing visual context | ✅ Natural voice narration<br>✅ Scene-by-scene description<br>✅ Time-synchronized descriptions |

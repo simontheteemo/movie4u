@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Architecture
-description: Movie2U System Architecture
+description: movie4u System Architecture
 ---
 
 [Home](./README.md) | 
@@ -10,7 +10,7 @@ description: Movie2U System Architecture
 [Deployment](./deployment.md) | 
 [Demo](./demo.md)
 
-# Movie2U Architecture
+# movie4u Architecture
 
 ## Component Flow Diagram
 

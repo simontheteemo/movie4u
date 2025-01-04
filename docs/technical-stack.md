@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Technical Stack
-description: Movie2U Technical Stack
+description: movie4u Technical Stack
 ---
 
 [Home](./README.md) | 

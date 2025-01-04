@@ -4,9 +4,9 @@
 [Deployment](./deployment.md) | 
 [Demo](./demo.md)
 
-# Movie2U Documentation
+# movie4u Documentation
 ## Overview
-Movie2U is a serverless application that enhances video accessibility by providing comprehensive visual and audio descriptions, specifically designed to help blind or visually impaired users understand video content.
+movie4u is a serverless application that enhances video accessibility by providing comprehensive visual and audio descriptions, specifically designed to help blind or visually impaired users understand video content.
 
 ## Features
 
