@@ -10,13 +10,33 @@ locals {
       handler = "index.handler"
       timeout = 300
     }
+    label_checker = {
+      name    = "labelChecker"
+      handler = "index.handler"
+      timeout = 60
+    }
     audio_processor = {
       name    = "audioProcessor"
       handler = "index.handler"
       timeout = 300
     }
+    transcription_checker = {
+      name    = "transcriptionChecker"
+      handler = "index.handler"
+      timeout = 60
+    }
+    narrative_generator = {
+      name    = "narrativeGenerator"
+      handler = "index.handler"
+      timeout = 300
+    }
     result_combiner = {
       name    = "resultCombiner"
+      handler = "index.handler"
+      timeout = 60
+    }
+    result_saver = {
+      name    = "resultSaver"
       handler = "index.handler"
       timeout = 60
     }

@@ -58,6 +58,45 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "states:StartExecution"
         ]
         Resource = [var.step_function_arn]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "rekognition:StartLabelDetection",
+          "rekognition:GetLabelDetection"
+        ]
+        Resource = ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "transcribe:StartTranscriptionJob",
+          "transcribe:GetTranscriptionJob"
+        ]
+        Resource = ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "mediaconvert:CreateJob",
+          "mediaconvert:GetJob"
+        ]
+        Resource = ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "polly:StartSpeechSynthesisTask",
+          "polly:GetSpeechSynthesisTask"
+        ]
+        Resource = ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel"
+        ]
+        Resource = ["*"]
       }
     ]
   })

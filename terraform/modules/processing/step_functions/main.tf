@@ -20,45 +20,102 @@ resource "aws_sfn_state_machine" "video_processing" {
           Next = "FailState"
         }]
       }
+
       ParallelProcessing = {
         Type = "Parallel"
         Branches = [
           {
-            StartAt = "VideoAnalysis"
+            StartAt = "ProcessVideo"
             States = {
-              VideoAnalysis = {
+              ProcessVideo = {
                 Type = "Task"
                 Resource = var.lambda_function_arns["video_analyzer"]
+                Next = "WaitForLabels"
+              }
+              WaitForLabels = {
+                Type = "Wait"
+                Seconds = 30
+                Next = "CheckLabels"
+              }
+              CheckLabels = {
+                Type = "Task"
+                Resource = var.lambda_function_arns["label_checker"]
+                Next = "LabelsComplete?"
+              }
+              "LabelsComplete?" = {
+                Type = "Choice"
+                Choices = [
+                  {
+                    Variable = "$.labelDetectionStatus"
+                    StringEquals = "SUCCEEDED"
+                    Next = "GenerateVisualNarrative"
+                  }
+                ],
+                Default = "WaitForLabels"
+              }
+              GenerateVisualNarrative = {
+                Type = "Task"
+                Resource = var.lambda_function_arns["narrative_generator"]
                 End = true
               }
             }
           },
           {
-            StartAt = "AudioProcessing"
+            StartAt = "ProcessAudioAndTranscribe"
             States = {
-              AudioProcessing = {
+              ProcessAudioAndTranscribe = {
                 Type = "Task"
                 Resource = var.lambda_function_arns["audio_processor"]
-                End = true
+                Next = "WaitForTranscription"
+              }
+              WaitForTranscription = {
+                Type = "Wait"
+                Seconds = 30
+                Next = "CheckTranscription"
+              }
+              CheckTranscription = {
+                Type = "Task"
+                Resource = var.lambda_function_arns["transcription_checker"]
+                Next = "TranscriptionComplete?"
+              }
+              "TranscriptionComplete?" = {
+                Type = "Choice"
+                Choices = [
+                  {
+                    Variable = "$.transcriptionStatus"
+                    StringEquals = "COMPLETED"
+                    End = true
+                  }
+                ],
+                Default = "WaitForTranscription"
               }
             }
           }
         ]
-        Next = "ResultCombiner"
+        Next = "FinalizeResults"
         Catch = [{
           ErrorEquals = ["States.ALL"]
           Next = "FailState"
         }]
       }
-      ResultCombiner = {
+
+      FinalizeResults = {
         Type = "Task"
         Resource = var.lambda_function_arns["result_combiner"]
+        Next = "SaveResults"
+      }
+
+      SaveResults = {
+        Type = "Task"
+        Resource = var.lambda_function_arns["result_saver"]
         End = true
       }
+
       FailState = {
-        Type = "Fail",
+        Type = "Fail"
         Cause = "Video Processing Failed"
+        Error = "VideoProcessingError"
       }
     }
   })
-}
+} 
