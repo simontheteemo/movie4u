@@ -10,6 +10,7 @@ env:
   AWS_REGION: us-west-2
   NODE_VERSION: '18'
   TERRAFORM_WORKING_DIR: './terraform'
+  ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
 
 jobs:
   build-and-deploy:
@@ -59,9 +60,9 @@ jobs:
     - name: Terraform Plan
       working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
       id: plan
-      run: terraform plan -no-color
+      run: terraform plan -no-color -var="environment=${{ env.ENVIRONMENT }}"
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -var="environment=${{ env.ENVIRONMENT }}"
