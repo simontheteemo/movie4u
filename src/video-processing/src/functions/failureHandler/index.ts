@@ -2,6 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { JobState } from '../../shared/types';
 import { formatError } from '../../shared/utils';
+import { ENV } from '../../shared/constants';
 
 const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({
     maxAttempts: 3
@@ -12,7 +13,7 @@ export const handler = async (event: JobState & { error?: Error }): Promise<void
 
     try {
         await dynamodb.send(new PutCommand({
-            TableName: process.env.JOBS_TABLE,
+            TableName: ENV.JOBS_TABLE,
             Item: {
                 videoId: event.videoId,
                 timestamp: event.timestamp,

@@ -1,6 +1,8 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { JobState, VideoAnalysis } from '../../shared/types';
+import { ENV } from '../../shared/constants';
+import { formatError } from '../../shared/utils';
 
 const dynamodb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -23,13 +25,18 @@ export const handler = async (event: JobState): Promise<JobState> => {
         status: 'COMPLETED'
     };
 
-    await dynamodb.send(new PutCommand({
-        TableName: process.env.JOBS_TABLE,
-        Item: analysis
-    }));
+    try {
+        await dynamodb.send(new PutCommand({
+            TableName: ENV.JOBS_TABLE,
+            Item: analysis
+        }));
 
-    return {
-        ...event,
-        status: 'SAVED'
-    };
+        return {
+            ...event,
+            status: 'SAVED'
+        };
+    } catch (error) {
+        console.error('Error saving results:', formatError(error));
+        throw error;
+    }
 }; 

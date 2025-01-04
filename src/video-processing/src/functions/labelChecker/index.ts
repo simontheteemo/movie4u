@@ -10,6 +10,10 @@ export const handler = async (event: JobState): Promise<JobState> => {
 
     const response = await getLabelDetection(event.labelDetectionJobId);
     
+    if (response.JobStatus === 'FAILED') {
+        throw new Error(`Label detection failed: ${response.StatusMessage || 'Unknown error'}`);
+    }
+
     return {
         ...event,
         labelDetectionStatus: response.JobStatus,

@@ -10,6 +10,10 @@ export const handler = async (event: JobState): Promise<JobState> => {
 
     const job = await getTranscriptionStatus(event.transcriptionJobName);
     
+    if (job?.TranscriptionJobStatus === 'FAILED') {
+        throw new Error(`Transcription failed: ${job.FailureReason || 'Unknown error'}`);
+    }
+
     return {
         ...event,
         transcriptionStatus: job?.TranscriptionJobStatus,
