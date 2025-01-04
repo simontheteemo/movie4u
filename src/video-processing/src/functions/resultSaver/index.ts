@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { JobState, VideoAnalysis } from '../../shared/types';
+import { JobStatus } from '../../shared/constants';
 import { ENV } from '../../shared/constants';
 import { formatError } from '../../shared/utils';
 
@@ -33,7 +34,7 @@ export const handler = async (event: JobState): Promise<JobState> => {
 
         return {
             ...event,
-            status: 'SAVED'
+            status: JobStatus.SAVED
         };
     } catch (error) {
         console.error('Error saving results:', formatError(error));

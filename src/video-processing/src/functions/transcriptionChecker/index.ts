@@ -1,7 +1,6 @@
 import { JobState } from '../../shared/types';
 import { getTranscriptionStatus } from '../../shared/clients/transcribe';
-
-type TranscriptionJobStatus = "COMPLETED" | "IN_PROGRESS" | "QUEUED";
+import { JobStatus } from '../../shared/constants';
 
 export const handler = async (event: JobState): Promise<JobState> => {
     console.log('Transcription Checker function called with event:', JSON.stringify(event, null, 2));
@@ -20,6 +19,6 @@ export const handler = async (event: JobState): Promise<JobState> => {
         ...event,
         transcriptionStatus: job?.TranscriptionJobStatus,
         transcriptionPath: job?.Transcript?.TranscriptFileUri,
-        status: job?.TranscriptionJobStatus === 'COMPLETED' ? 'TRANSCRIPTION_COMPLETED' : 'TRANSCRIPTION_IN_PROGRESS'
+        status: job?.TranscriptionJobStatus === 'COMPLETED' ? JobStatus.TRANSCRIPTION_COMPLETED : JobStatus.TRANSCRIPTION_IN_PROGRESS
     };
 }; 

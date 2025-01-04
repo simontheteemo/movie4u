@@ -1,6 +1,6 @@
 import { S3Event } from 'aws-lambda';
 import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
-import { ENV } from '../constants';
+import { ENV } from './shared/constants';
 import { formatError } from './shared/utils';
 
 const sfn = new SFNClient({

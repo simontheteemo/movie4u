@@ -2,16 +2,16 @@ const path = require('path');
 const glob = require('glob');
 
 // Get all function entry points
-const entries = {
-  // Add step function trigger
-  stepFunctionTrigger: './src/stepFunctionTrigger.ts'
-};
+const entries = {};
 
 // Add all function handlers
 glob.sync('./src/functions/**/index.ts').forEach((file) => {
   const name = file.split('/')[3]; // Get function name from path
-  entries[name] = file;
+  entries[name] = './' + file;  // Add ./ to make it relative
 });
+
+// Add step function trigger separately
+entries.stepFunctionTrigger = './src/stepFunctionTrigger.ts';
 
 module.exports = {
   entry: entries,

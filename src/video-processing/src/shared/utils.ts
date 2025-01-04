@@ -21,8 +21,10 @@ export const formatError = (error: unknown): string => {
 export const withApiGatewayErrorHandling = (handler: APIGatewayProxyHandler): APIGatewayProxyHandler => {
     return async (event, context, callback) => {
         try {
-            const response = await handler(event, context, callback);
-            return response;
+            return await handler(event, context, callback) || {
+                statusCode: 200,
+                body: ''
+            };
         } catch (error) {
             console.error('Error:', error);
             return {
