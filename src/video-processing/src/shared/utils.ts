@@ -1,5 +1,5 @@
 import { JobState } from './types';
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 
 export const validateJobState = (state: JobState): void => {
     if (!state.videoId || !state.bucket || !state.key) {
@@ -36,5 +36,16 @@ export const withApiGatewayErrorHandling = (handler: APIGatewayProxyHandler): AP
                 },
             };
         }
+    };
+};
+
+export const handler: APIGatewayProxyHandler = async (
+    event: APIGatewayProxyEvent,
+    context: Context
+): Promise<APIGatewayProxyResult> => {
+    // ... your logic ...
+    return {
+        statusCode: 200,
+        body: JSON.stringify({ /* your response */ })
     };
 };
