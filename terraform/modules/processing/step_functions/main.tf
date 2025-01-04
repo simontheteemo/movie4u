@@ -31,6 +31,16 @@ resource "aws_sfn_state_machine" "video_processing" {
                 Type = "Task"
                 Resource = var.lambda_function_arns["video_analyzer"]
                 Next = "WaitForLabels"
+                Retry = [{
+                  ErrorEquals = ["States.ALL"]
+                  IntervalSeconds = 2
+                  MaxAttempts = 3
+                  BackoffRate = 2
+                }]
+                Catch = [{
+                  ErrorEquals = ["States.ALL"]
+                  Next = "FailState"
+                }]
               }
               WaitForLabels = {
                 Type = "Wait"
@@ -66,6 +76,16 @@ resource "aws_sfn_state_machine" "video_processing" {
               GenerateVisualNarrative = {
                 Type = "Task"
                 Resource = var.lambda_function_arns["narrative_generator"]
+                Retry = [{
+                  ErrorEquals = ["States.ALL"]
+                  IntervalSeconds = 2
+                  MaxAttempts = 3
+                  BackoffRate = 2
+                }]
+                Catch = [{
+                  ErrorEquals = ["States.ALL"]
+                  Next = "FailState"
+                }]
                 End = true
               }
             }
@@ -77,6 +97,16 @@ resource "aws_sfn_state_machine" "video_processing" {
                 Type = "Task"
                 Resource = var.lambda_function_arns["audio_processor"]
                 Next = "WaitForTranscription"
+                Retry = [{
+                  ErrorEquals = ["States.ALL"]
+                  IntervalSeconds = 2
+                  MaxAttempts = 3
+                  BackoffRate = 2
+                }]
+                Catch = [{
+                  ErrorEquals = ["States.ALL"]
+                  Next = "FailState"
+                }]
               }
               WaitForTranscription = {
                 Type = "Wait"
@@ -123,11 +153,31 @@ resource "aws_sfn_state_machine" "video_processing" {
         Type = "Task"
         Resource = var.lambda_function_arns["result_combiner"]
         Next = "SaveResults"
+        Retry = [{
+          ErrorEquals = ["States.ALL"]
+          IntervalSeconds = 2
+          MaxAttempts = 3
+          BackoffRate = 2
+        }]
+        Catch = [{
+          ErrorEquals = ["States.ALL"]
+          Next = "FailState"
+        }]
       }
 
       SaveResults = {
         Type = "Task"
         Resource = var.lambda_function_arns["result_saver"]
+        Retry = [{
+          ErrorEquals = ["States.ALL"]
+          IntervalSeconds = 2
+          MaxAttempts = 3
+          BackoffRate = 2
+        }]
+        Catch = [{
+          ErrorEquals = ["States.ALL"]
+          Next = "FailState"
+        }]
         End = true
       }
 

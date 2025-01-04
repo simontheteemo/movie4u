@@ -42,6 +42,11 @@ locals {
       handler = "index.handler"
       timeout = 60
     }
+    failure_handler = {
+      name    = "failureHandler"
+      handler = "index.handler"
+      timeout = 60
+    }
   }
 }
 
