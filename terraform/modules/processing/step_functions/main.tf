@@ -41,6 +41,16 @@ resource "aws_sfn_state_machine" "video_processing" {
                 Type = "Task"
                 Resource = var.lambda_function_arns["label_checker"]
                 Next = "LabelsComplete?"
+                Retry = [{
+                  ErrorEquals = ["States.ALL"]
+                  IntervalSeconds = 2
+                  MaxAttempts = 3
+                  BackoffRate = 2
+                }]
+                Catch = [{
+                  ErrorEquals = ["States.ALL"]
+                  Next = "FailState"
+                }]
               }
               "LabelsComplete?" = {
                 Type = "Choice"
@@ -77,6 +87,16 @@ resource "aws_sfn_state_machine" "video_processing" {
                 Type = "Task"
                 Resource = var.lambda_function_arns["transcription_checker"]
                 Next = "TranscriptionComplete?"
+                Retry = [{
+                  ErrorEquals = ["States.ALL"]
+                  IntervalSeconds = 2
+                  MaxAttempts = 3
+                  BackoffRate = 2
+                }]
+                Catch = [{
+                  ErrorEquals = ["States.ALL"]
+                  Next = "FailState"
+                }]
               }
               "TranscriptionComplete?" = {
                 Type = "Choice"
@@ -112,9 +132,9 @@ resource "aws_sfn_state_machine" "video_processing" {
       }
 
       FailState = {
-        Type = "Fail"
-        Cause = "Video Processing Failed"
-        Error = "VideoProcessingError"
+        Type = "Task"
+        Resource = var.lambda_function_arns["failure_handler"]
+        End = true
       }
     }
   })

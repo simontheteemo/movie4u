@@ -1,11 +1,11 @@
 resource "aws_dynamodb_table" "jobs" {
   name           = "${var.resource_prefix}-jobs"
   billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "jobId"
+  hash_key       = "videoId"
   range_key      = "timestamp"
 
   attribute {
-    name = "jobId"
+    name = "videoId"
     type = "S"
   }
 

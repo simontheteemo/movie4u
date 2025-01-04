@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 locals {
   lambda_functions = {
     initializer = {
@@ -63,6 +65,7 @@ resource "aws_lambda_function" "functions" {
       MEDIACONVERT_ENDPOINT = var.mediaconvert_endpoint
       MEDIACONVERT_ROLE     = var.mediaconvert_role_arn
       MEDIACONVERT_QUEUE    = var.mediaconvert_queue_arn
+      AWS_REGION = data.aws_region.current.name
     }
   }
 
