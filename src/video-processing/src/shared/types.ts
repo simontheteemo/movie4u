@@ -17,7 +17,7 @@ export interface VideoAnalysis {
 }
 
 export type RekognitionJobStatus = 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED';
-export type TranscriptionJobStatus = 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+export type TranscriptionJobStatus = 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'QUEUED';
 
 export interface JobState {
     videoId: string;
