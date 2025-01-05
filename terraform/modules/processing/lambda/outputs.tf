@@ -1,18 +1,11 @@
 output "function_arns" {
-  description = "Map of Lambda function ARNs"
-  value = {
-    for name, function in aws_lambda_function.functions : name => function.arn
-  }
+  value = { for name, func in aws_lambda_function.functions : name => func.arn }
 }
 
 output "function_names" {
-  description = "Map of Lambda function names"
-  value = {
-    for name, function in aws_lambda_function.functions : name => function.function_name
-  }
+  value = { for name, func in aws_lambda_function.functions : name => func.function_name }
 }
 
 output "role_id" {
-  description = "ID of the Lambda role"
-  value       = aws_iam_role.lambda_role.id
+  value = aws_iam_role.lambda_role.id
 }
