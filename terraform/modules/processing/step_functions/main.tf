@@ -1,29 +1,20 @@
 locals {
-  state_machine_definition = templatefile("${path.module}/state_machine_definition.json.tpl", {
-    lambda_arns = var.lambda_function_arns
-  })
-  
-  common_retry = [
-    {
-      ErrorEquals = ["States.ALL"]
-      IntervalSeconds = 2
-      MaxAttempts = 3
-      BackoffRate = 2
-    }
-  ]
-  
-  common_catch = [
-    {
-      ErrorEquals = ["States.ALL"]
-      Next = "FailState"
-    }
-  ]
+  # Create a map of placeholder values for Lambda ARNs
+  placeholder_arns = {
+    for name in ["transcriptionTrigger", "transcriptionChecker", "resultSaver"] :
+    name => "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.resource_prefix}-${name}"
+  }
 }
+
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 resource "aws_sfn_state_machine" "video_processing" {
   name     = "${var.resource_prefix}-video-processing"
   role_arn = aws_iam_role.step_functions.arn
-  definition = local.state_machine_definition
-  
-  depends_on = [aws_iam_role.step_functions]
+
+  definition = jsonencode({
+    # Use placeholder_arns instead of var.lambda_function_arns
+    # Your state machine definition here using local.placeholder_arns
+  })
 }

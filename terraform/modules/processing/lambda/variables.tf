@@ -19,9 +19,9 @@ variable "jobs_table_name" {
 }
 
 variable "step_function_arn" {
-  description = "ARN of the Step Functions state machine"
+  description = "ARN of the Step Function state machine"
   type        = string
-  default     = ""  # Will be updated after Step Functions creation
+  default     = ""  # Empty string instead of null
 }
 
 variable "upload_bucket_arn" {

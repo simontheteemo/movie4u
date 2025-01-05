@@ -19,7 +19,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = concat([
+    Statement = [
       {
         Effect = "Allow"
         Action = [
@@ -27,7 +27,14 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = ["arn:aws:logs:*:*:*"]
+        Resource = ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "states:StartExecution"
+        ]
+        Resource = ["*"]
       },
       {
         Effect = "Allow"
@@ -51,13 +58,6 @@ resource "aws_iam_role_policy" "lambda_policy" {
           var.upload_bucket_arn,
           var.media_output_bucket_arn
         ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "states:StartExecution"
-        ]
-        Resource = [var.step_function_arn]
       },
       {
         Effect = "Allow"
@@ -98,14 +98,6 @@ resource "aws_iam_role_policy" "lambda_policy" {
         ]
         Resource = ["*"]
       }
-    ], var.step_function_arn != null ? [
-      {
-        Effect = "Allow"
-        Action = [
-          "states:StartExecution"
-        ]
-        Resource = [var.step_function_arn]
-      }
-    ] : [])
+    ]
   })
 }
