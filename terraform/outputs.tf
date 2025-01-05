@@ -1,18 +1,3 @@
-output "upload_bucket_name" {
-  description = "Name of the S3 bucket for video uploads"
-  value       = module.storage.upload_bucket_name
-}
-
-output "analysis_table_name" {
-  description = "Name of the DynamoDB table for analysis results"
-  value       = module.storage.analysis_table_name
-}
-
-output "processor_function_name" {
-  description = "Name of the Lambda processor function"
-  value       = module.processing.processor_function_name
-}
-
 output "media_bucket" {
   value       = module.storage.media_bucket_name
   description = "Name of the S3 bucket for media storage"
@@ -26,6 +11,11 @@ output "media_output_bucket" {
 output "jobs_table" {
   value       = module.storage.jobs_table_name
   description = "Name of the DynamoDB table for jobs"
+}
+
+output "processor_function_name" {
+  value       = module.processing.function_names["processor"]
+  description = "Name of the processor Lambda function"
 }
 
 output "step_function_arn" {

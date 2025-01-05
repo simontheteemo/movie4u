@@ -43,3 +43,8 @@ output "mediaconvert_endpoint" {
 output "mediaconvert_queue_arn" {
   value = aws_media_convert_queue.main.arn
 }
+
+output "media_bucket_name" {
+  value = aws_s3_bucket.media.id
+  description = "Name of the S3 bucket for media storage"
+}
