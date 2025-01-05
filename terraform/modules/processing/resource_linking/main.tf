@@ -1,11 +1,3 @@
-variable "step_function_arn" {
-  type = string
-}
-
-variable "lambda_function_arns" {
-  type = map(string)
-}
-
 # Add permissions for Step Functions to invoke Lambda
 resource "aws_lambda_permission" "step_functions" {
   for_each = var.lambda_function_arns
