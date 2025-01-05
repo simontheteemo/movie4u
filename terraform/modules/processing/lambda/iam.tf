@@ -19,7 +19,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
+    Statement = concat([
       {
         Effect = "Allow"
         Action = [
@@ -98,6 +98,14 @@ resource "aws_iam_role_policy" "lambda_policy" {
         ]
         Resource = ["*"]
       }
-    ]
+    ], var.step_function_arn != null ? [
+      {
+        Effect = "Allow"
+        Action = [
+          "states:StartExecution"
+        ]
+        Resource = [var.step_function_arn]
+      }
+    ] : [])
   })
 }

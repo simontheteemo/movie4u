@@ -82,3 +82,16 @@ resource "aws_s3_bucket_versioning" "media_output" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "media_output" {
+  bucket = aws_s3_bucket.media_output.id
+
+  rule {
+    id     = "cleanup"
+    status = "Enabled"
+
+    expiration {
+      days = 30  # Adjust based on your requirements
+    }
+  }
+}

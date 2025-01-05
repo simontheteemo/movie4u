@@ -44,10 +44,15 @@ resource "aws_s3_bucket_notification" "upload_notification" {
   ]
 }
 
-terraform {
-  backend "s3" {
-    bucket = "movie4u"
-    key    = "terraform.tfstate"
-    region = "us-west-2"
+# Optional: Update Lambda with Step Function ARN after creation
+resource "null_resource" "update_lambda_permissions" {
+  triggers = {
+    step_function_arn = module.step_functions.state_machine_arn
   }
+
+  provisioner "local-exec" {
+    command = "aws lambda update-function-configuration ..."
+  }
+
+  depends_on = [module.lambda, module.step_functions]
 }
