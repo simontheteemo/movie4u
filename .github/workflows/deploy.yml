@@ -9,8 +9,7 @@ on:
 env:
   AWS_REGION: us-west-2
   NODE_VERSION: '18'
-  TERRAFORM_WORKING_DIR: './terraform/environments/${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}'
-  ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+  TERRAFORM_BASE_DIR: './terraform/environments'
 
 jobs:
   build-and-deploy:
@@ -20,6 +19,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Set Environment
+      id: env
+      run: |
+        if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+          echo "env_name=prod" >> $GITHUB_OUTPUT
+          echo "working_dir=${{ env.TERRAFORM_BASE_DIR }}/prod" >> $GITHUB_OUTPUT
+        else
+          echo "env_name=dev" >> $GITHUB_OUTPUT
+          echo "working_dir=${{ env.TERRAFORM_BASE_DIR }}/dev" >> $GITHUB_OUTPUT
+        fi
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -50,19 +60,19 @@ jobs:
       uses: hashicorp/setup-terraform@v2
 
     - name: Terraform Init
-      working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+      working-directory: ${{ steps.env.outputs.working_dir }}
       run: terraform init -backend=true
 
     - name: Terraform Format
-      working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+      working-directory: ${{ steps.env.outputs.working_dir }}
       run: terraform fmt -recursive
 
     - name: Terraform Plan
-      working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+      working-directory: ${{ steps.env.outputs.working_dir }}
       id: plan
       run: terraform plan -no-color
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+      working-directory: ${{ steps.env.outputs.working_dir }}
       run: terraform apply -auto-approve
