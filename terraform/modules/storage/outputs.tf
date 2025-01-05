@@ -17,11 +17,11 @@ output "upload_bucket_name" {
 }
 
 output "analysis_table_arn" {
-  value = aws_dynamodb_table.analysis.arn
+  value = aws_dynamodb_table.jobs.arn
 }
 
 output "analysis_table_name" {
-  value = aws_dynamodb_table.analysis.name
+  value = aws_dynamodb_table.jobs.arn
 }
 
 output "media_output_bucket_arn" {

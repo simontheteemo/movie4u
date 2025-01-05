@@ -11,3 +11,8 @@ output "function_names" {
     for name, function in aws_lambda_function.functions : name => function.function_name
   }
 }
+
+output "role_id" {
+  description = "ID of the Lambda role"
+  value       = aws_iam_role.lambda_role.id
+}

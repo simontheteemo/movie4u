@@ -20,7 +20,7 @@ resource "aws_lambda_permission" "step_functions" {
 # Add more specific IAM permissions for Lambda to invoke Step Functions
 resource "aws_iam_role_policy" "lambda_step_functions" {
   name = "lambda-step-functions"
-  role = aws_iam_role.lambda_role.id
+  role = var.lambda_role_id
 
   policy = jsonencode({
     Version = "2012-10-17"

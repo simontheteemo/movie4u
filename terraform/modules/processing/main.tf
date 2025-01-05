@@ -13,6 +13,7 @@ module "lambda" {
   mediaconvert_endpoint = var.mediaconvert_endpoint
   mediaconvert_role_arn = var.mediaconvert_role_arn
   mediaconvert_queue_arn = var.mediaconvert_queue_arn
+
 }
 
 module "step_functions" {
@@ -30,6 +31,7 @@ module "resource_linking" {
   
   step_function_arn    = module.step_functions.state_machine_arn
   lambda_function_arns = module.lambda.function_arns
+  lambda_role_id = module.lambda.role_id
 
   depends_on = [
     module.lambda,
